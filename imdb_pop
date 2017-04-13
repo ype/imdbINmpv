@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+
+# Plays imdb trailers in mpv
+
+LOGFILE="$HOME/.imdb_pop.log"
+PLAYLIST="$HOME/.imdb_pop_list.txt"
+
+fetch() {
+    USER_SELECTION="$@"
+    
+    POP='#popTab'
+    REC='#recAddTab'
+    TV='#tvTab'
+
+    count=0
+    
+    for var in "$USER_SELECTION"; do
+	if [[ "$var" == *"P"* ]]; then
+	    TAB="$POP"
+	elif [[ "$var" == *"R"* ]]; then
+	    TAB="$REC"
+	elif [[ "$var" == *"T"* ]]; then
+	    TAB="$TV"
+	else
+	    echo "invalid argument"
+	    TAB="$TV";
+	fi
+
+	echo -n "fetching"
+	for i in {1..3}; do echo -n "."; sleep 0.2; done
+	if [[ "$var" == *"P"* ]]; then
+	    echo -en " Popular Trailers\n";
+	elif [[ "$var" == *"R"* ]]; then
+	    echo -en " Recent Trailers\n";
+	elif [[ "$var" == *"T"* ]]; then
+	    echo -en " TV Trailers\n";
+	else
+	    echo -en " Invalid Selection: $var";
+	fi
+	
+	curl -sL "http://www.imdb.com/trailers" \
+	    | pup "${TAB}" \
+	    | grep -Eo 'data-videoid\=("vi[0-9]+")' \
+	    | sed -r 's/data\-videoid|[\=\"]//g' \
+	    | xargs -I% echo -e "http://www.imdb.com/video/imdb/"% \
+		    > "$PLAYLIST"
+    done
+}
+
+play() {
+    mpv	--no-resume-playback \
+	--playlist "$PLAYLIST" \
+	> "$LOGFILE" 2>&1 &
+    echo -n "loading trailers"
+    for i in {1..10}; do echo -n "."; sleep 1; done
+    echo -ne "\n"
+}
+
+main() {
+    if [[ "$@" == *"clean"* ]]; then
+	echo "Removing: $PLAYLIST"
+	rm "$PLAYLIST"
+	echo "Removing: $LOGFILE"
+	rm "$LOGFILE"
+    else
+	# USER INPUT REQUIRED options: [P]opular, [R]ecent, [T]V
+	TRAILERS_CATEGORY="$@"
+	fetch "$TRAILERS_CATEGORY";
+	play;
+    fi
+}
+
+main "$@"
