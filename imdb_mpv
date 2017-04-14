@@ -2,8 +2,8 @@
 
 # Plays imdb trailers in mpv
 
-LOGFILE="$HOME/.imdb_pop.log"
-PLAYLIST="$HOME/.imdb_pop_list.txt"
+LOGFILE="$HOME/.imdb_mpv.log"
+PLAYLIST="$HOME/.imdb_mpv_list.txt"
 
 fetch() {
     USER_SELECTION="$@"
