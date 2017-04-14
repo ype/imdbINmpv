@@ -5,19 +5,19 @@
 Watch Popular Trailers
 
 ```
-imdb_pop P
+imdb_mpv P
 ```
 
 **OR** Recent Trailers
 
 ```
-imdb_pop R
+imdb_mpv R
 ```
 
 **OR** TV Trailers
 
 ```
-imdb_pop T
+imdb_mpv T
 ```
 
 **OR**
